@@ -6,7 +6,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[var(--color-app-background)] text-[var(--color-display)] transition-colors duration-200">
       {children}
     </main>
   )
