@@ -1,42 +1,65 @@
+import { useCalculatorStore } from '@/stores/calculator.store'
 import { CalculatorKey } from './CalculatorKey'
 
+const rows = [
+  ['(', ')', 'mc', 'm+', 'm−', 'mr'],
+  ['2ⁿᵈ', 'x²', 'x³', '^', 'eˣ', '10ˣ'],
+  ['1/x', '√x', '∛x', 'ʸ√x', 'ln', 'log₁₀'],
+  ['x!', 'sin', 'cos', 'tan', 'e', 'EE'],
+  ['Rand', 'sinh', 'cosh', 'tanh', 'π', 'angle'],
+]
+
 export function ScientificKeypad() {
+  const pressKey = useCalculatorStore((state) => state.pressKey)
+  const angleMode = useCalculatorStore((state) => state.angleMode)
+  const setAngleMode = useCalculatorStore((state) => state.setAngleMode)
+
+  const handleKey = (key: string) => {
+    if (key === 'angle') {
+      setAngleMode(angleMode === 'deg' ? 'rad' : 'deg')
+      return
+    }
+
+    if (key === '2ⁿᵈ') {
+      return
+    }
+
+    if (key === 'ʸ√x') {
+      pressKey('^')
+      return
+    }
+
+    if (key === 'EE') {
+      pressKey('EE')
+      return
+    }
+
+    if (key === 'Rand') {
+      pressKey('Rand')
+      return
+    }
+
+    pressKey(key)
+  }
+
   return (
     <div className="mb-3 grid grid-cols-6 gap-2 sm:gap-2.5">
-      <CalculatorKey variant="function">(</CalculatorKey>
-      <CalculatorKey variant="function">)</CalculatorKey>
-      <CalculatorKey variant="function">mc</CalculatorKey>
-      <CalculatorKey variant="function">m+</CalculatorKey>
-      <CalculatorKey variant="function">m−</CalculatorKey>
-      <CalculatorKey variant="function">mr</CalculatorKey>
-
-      <CalculatorKey variant="function">2ⁿᵈ</CalculatorKey>
-      <CalculatorKey variant="function">x²</CalculatorKey>
-      <CalculatorKey variant="function">x³</CalculatorKey>
-      <CalculatorKey variant="function">xʸ</CalculatorKey>
-      <CalculatorKey variant="function">eˣ</CalculatorKey>
-      <CalculatorKey variant="function">10ˣ</CalculatorKey>
-
-      <CalculatorKey variant="function">¹⁄ₓ</CalculatorKey>
-      <CalculatorKey variant="function">²√x</CalculatorKey>
-      <CalculatorKey variant="function">³√x</CalculatorKey>
-      <CalculatorKey variant="function">ʸ√x</CalculatorKey>
-      <CalculatorKey variant="function">ln</CalculatorKey>
-      <CalculatorKey variant="function">log₁₀</CalculatorKey>
-
-      <CalculatorKey variant="function">x!</CalculatorKey>
-      <CalculatorKey variant="function">sin</CalculatorKey>
-      <CalculatorKey variant="function">cos</CalculatorKey>
-      <CalculatorKey variant="function">tan</CalculatorKey>
-      <CalculatorKey variant="function">e</CalculatorKey>
-      <CalculatorKey variant="function">EE</CalculatorKey>
-
-      <CalculatorKey variant="function">Rand</CalculatorKey>
-      <CalculatorKey variant="function">sinh</CalculatorKey>
-      <CalculatorKey variant="function">cosh</CalculatorKey>
-      <CalculatorKey variant="function">tanh</CalculatorKey>
-      <CalculatorKey variant="function">π</CalculatorKey>
-      <CalculatorKey variant="function">Deg</CalculatorKey>
+      {rows.flat().map((key) => (
+        <CalculatorKey
+          key={key}
+          variant="function"
+          ariaLabel={
+            key === 'angle'
+              ? `Switch angle mode. Current mode: ${angleMode}`
+              : key
+          }
+          onClick={() => handleKey(key)}
+        >
+          {key === 'angle'
+            ? angleMode === 'deg' ? 'Deg' : 'Rad'
+            : key}
+        </CalculatorKey>
+      ))}
     </div>
   )
 }

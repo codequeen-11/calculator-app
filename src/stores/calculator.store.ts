@@ -38,13 +38,27 @@ const initialState = {
   lastValue: null as number | null,
 }
 
-function preview(expression: string): string | null {
+// function preview(expression: string): string | null {
+//   try {
+//     return formatResult(evaluateExpression(expression))
+//   } catch {
+//     return null
+//   }
+// }
+
+function preview(
+  expression: string,
+  angleMode: AngleMode,
+): string | null {
   try {
-    return formatResult(evaluateExpression(expression))
+    return formatResult(
+      evaluateExpression(expression, angleMode),
+    )
   } catch {
     return null
   }
 }
+
 
 export const useCalculatorStore = create<CalculatorState>()((set, get) => ({
   ...initialState,
@@ -70,7 +84,7 @@ export const useCalculatorStore = create<CalculatorState>()((set, get) => ({
       expression = expression.slice(0, -1)
       set({
         expression,
-        result: preview(expression) ?? state.result,
+        result: preview(expression, state.angleMode) ?? state.result,
         status: 'idle',
         justEvaluated: false,
         lastValue: null,
@@ -82,7 +96,7 @@ export const useCalculatorStore = create<CalculatorState>()((set, get) => ({
       if (!expression) return
 
       try {
-        const value = evaluateExpression(expression)
+        const value = evaluateExpression(expression,  state.angleMode )
 
         set({
           expression,
@@ -105,7 +119,73 @@ export const useCalculatorStore = create<CalculatorState>()((set, get) => ({
 
       return
     }
+  const scientificFunctions: Record<string, string> = {
+  sin: 'sin',
+  cos: 'cos',
+  tan: 'tan',
+  'sin⁻¹': 'asin',
+  'cos⁻¹': 'acos',
+  'tan⁻¹': 'atan',
+  sinh: 'sinh',
+  cosh: 'cosh',
+  tanh: 'tanh',
+  ln: 'ln',
+  'log₁₀': 'log',
+  '√x': 'sqrt',
+  '∛x': 'cbrt',
+  '1/x': 'reciprocal',
+  'x²': 'square',
+  'x³': 'cube',
+  'eˣ': 'exp',
+  '10ˣ': 'exp10',
+  'x!': 'factorial',
+}
 
+if (key === 'Deg' || key === 'Rad') {
+  set({
+    angleMode: key === 'Deg' ? 'deg' : 'rad',
+  })
+  return
+}
+
+if (key === 'π' || key === 'e') {
+  const nextExpression =
+    state.justEvaluated || !expression
+      ? key === 'π' ? 'pi' : 'e'
+      : `${expression}×${key === 'π' ? 'pi' : 'e'}`
+
+  set({
+    expression: nextExpression,
+    result: preview(nextExpression, state.angleMode) ?? state.result,
+    status: 'idle',
+    justEvaluated: false,
+    lastValue: null,
+  })
+  return
+}
+
+const scientificFunction = scientificFunctions[key]
+
+if (scientificFunction) {
+  const source = state.justEvaluated && state.lastValue !== null
+    ? String(state.lastValue)
+    : expression
+
+  if (!source || /[+\-×÷^.(]$/.test(source)) {
+    return
+  }
+
+  const nextExpression = `${scientificFunction}(${source})`
+
+  set({
+    expression: nextExpression,
+    result: preview(nextExpression, state.angleMode) ?? state.result,
+    status: 'idle',
+    justEvaluated: false,
+    lastValue: null,
+  })
+  return
+}
     if (key === '+/−') {
       if (!expression) {
         expression = '-'
@@ -117,7 +197,7 @@ export const useCalculatorStore = create<CalculatorState>()((set, get) => ({
 
       set({
         expression,
-        result: preview(expression) ?? state.result,
+        result: preview(expression, state.angleMode) ?? state.result,
         status: 'idle',
         justEvaluated: false,
         lastValue: null,
@@ -167,7 +247,7 @@ export const useCalculatorStore = create<CalculatorState>()((set, get) => ({
 
     set({
       expression,
-      result: preview(expression) ?? state.result,
+      result: preview(expression, state.angleMode) ?? state.result,
       status: 'idle',
       justEvaluated: false,
       lastValue: null,

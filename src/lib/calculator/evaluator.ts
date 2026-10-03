@@ -1,4 +1,8 @@
-type Token = number | '+' | '-' | '×' | '÷' | '*' | '/' | '^' | '%' | '(' | ')'
+import type { AngleMode } from '@/types/calculator'
+import { applyScientificFunction } from './scientific'
+
+type Token = number
+|string | '+' | '-' | '×' | '÷' | '*' | '/' | '^' | '%' | '(' | ')'
 
 export class CalculatorError extends Error {
   constructor(message: string) {
@@ -7,6 +11,7 @@ export class CalculatorError extends Error {
   }
 }
 
+
 function tokenize(input: string): Token[] {
   const source = input.replace(/\s/g, '')
   const tokens: Token[] = []
@@ -14,7 +19,10 @@ function tokenize(input: string): Token[] {
 
   while (position < source.length) {
     const remaining = source.slice(position)
-    const numberMatch = remaining.match(/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i)
+
+    const numberMatch = remaining.match(
+      /^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i,
+    )
 
     if (numberMatch) {
       const value = Number(numberMatch[0])
@@ -28,10 +36,18 @@ function tokenize(input: string): Token[] {
       continue
     }
 
+    const identifierMatch = remaining.match(/^(?:[a-zA-Z]+|π)/)
+
+    if (identifierMatch) {
+      tokens.push(identifierMatch[0].toLowerCase())
+      position += identifierMatch[0].length
+      continue
+    }
+
     const character = source[position]
 
     if ('+-×÷*/^%()'.includes(character)) {
-      tokens.push(character as Exclude<Token, number>)
+      tokens.push(character)
       position += 1
       continue
     }
@@ -44,11 +60,14 @@ function tokenize(input: string): Token[] {
 
 class Parser {
   private position = 0
-  private readonly tokens: Token[]
 
-  constructor(tokens: Token[]) {
-    this.tokens = tokens
-  }
+  private readonly tokens: Token[];
+  private readonly angleMode: AngleMode;
+
+constructor(tokens: Token[], angleMode: AngleMode) {
+  this.tokens = tokens;
+  this.angleMode = angleMode;
+}
 
   private peek(): Token | undefined {
     return this.tokens[this.position]
@@ -159,26 +178,54 @@ class Parser {
   }
 
   private parsePrimary(): number {
-    const token = this.consume()
+  const token = this.consume()
 
-    if (typeof token === 'number') {
-      return token
-    }
-
-    if (token === '(') {
-      const value = this.parseExpression()
-
-      if (this.consume() !== ')') {
-        throw new CalculatorError('Missing closing parenthesis')
-      }
-
-      return value
-    }
-
-    throw new CalculatorError('Expected a number')
+  if (typeof token === 'number') {
+    return token
   }
+
+  if (token === '(') {
+    const value = this.parseExpression()
+
+    if (this.consume() !== ')') {
+      throw new CalculatorError('Missing closing parenthesis')
+    }
+
+    return value
+  }
+
+  if (typeof token === 'string') {
+    if (token === 'pi' || token === 'π') return Math.PI
+    if (token === 'e') return Math.E
+
+    const supportedFunctions = [
+      'sin', 'cos', 'tan',
+      'asin', 'acos', 'atan',
+      'sinh', 'cosh', 'tanh',
+      'ln', 'log', 'sqrt', 'cbrt',
+      'reciprocal', 'square', 'cube',
+      'exp', 'exp10', 'factorial',
+    ]
+
+    if (supportedFunctions.includes(token)) {
+      const value = this.parsePrimary()
+
+      return applyScientificFunction(
+        token,
+        value,
+        this.angleMode,
+      )
+    }
+  }
+
+  throw new CalculatorError('Expected a number or function')
+}
+   
 }
 
-export function evaluateExpression(expression: string): number {
-  return new Parser(tokenize(expression)).parse()
+export function evaluateExpression(
+  expression: string,
+  angleMode: AngleMode = 'deg',
+): number {
+  return new Parser(tokenize(expression), angleMode).parse()
 }
