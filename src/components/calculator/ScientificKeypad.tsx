@@ -13,7 +13,7 @@ export function ScientificKeypad() {
   const pressKey = useCalculatorStore((state) => state.pressKey)
   const angleMode = useCalculatorStore((state) => state.angleMode)
   const setAngleMode = useCalculatorStore((state) => state.setAngleMode)
-
+  // const toggleSecondFunction = useCalculatorStore((state) => state.toggleSecondFunction)
   const handleKey = (key: string) => {
     if (key === 'angle') {
       setAngleMode(angleMode === 'deg' ? 'rad' : 'deg')
