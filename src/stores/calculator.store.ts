@@ -18,7 +18,6 @@ interface CalculatorState {
   status: CalculatorStatus
   justEvaluated: boolean
   lastValue: number | null
-
   secondFunction: boolean
   memory: number | null
 
@@ -131,7 +130,7 @@ export const useCalculatorStore = create<CalculatorState>()(
       const state = get()
       let { expression } = state
 
-      // Clear current calculation but preserve memory.
+      // Clear the current calculation while preserving memory.
       if (key === 'AC') {
         set({
           ...initialState,
@@ -140,7 +139,7 @@ export const useCalculatorStore = create<CalculatorState>()(
         return
       }
 
-      // Clear the last character.
+      // Delete the last character.
       if (key === '⌫') {
         expression = expression.slice(0, -1)
 
@@ -154,7 +153,7 @@ export const useCalculatorStore = create<CalculatorState>()(
         return
       }
 
-      // Evaluate the current expression.
+      // Evaluate the expression.
       if (key === '=') {
         if (!expression.trim()) return
 
@@ -186,7 +185,7 @@ export const useCalculatorStore = create<CalculatorState>()(
         return
       }
 
-      // Toggle primary and secondary scientific functions.
+      // Toggle secondary scientific functions.
       if (key === '2ⁿᵈ') {
         get().toggleSecondFunction()
         return
@@ -223,7 +222,7 @@ export const useCalculatorStore = create<CalculatorState>()(
           ) {
             nextExpression = memoryValue
           } else if (
-            /[+\-×÷^.(]$/.test(currentState.expression)
+            /[+\-×÷^.(ʸ√eE]$/.test(currentState.expression)
           ) {
             nextExpression =
               currentState.expression + memoryValue
@@ -268,7 +267,7 @@ export const useCalculatorStore = create<CalculatorState>()(
         const nextExpression =
           state.justEvaluated || !expression
             ? constant
-            : /[+\-×÷^.(]$/.test(expression)
+            : /[+\-×÷^.(ʸ√]$/.test(expression)
               ? expression + constant
               : `${expression}×${constant}`
 
@@ -293,7 +292,7 @@ export const useCalculatorStore = create<CalculatorState>()(
             ? String(state.lastValue)
             : expression
 
-        if (!source || /[+\-×÷^.(]$/.test(source)) {
+        if (!source || /[+\-×÷^.(ʸ√eE]$/.test(source)) {
           return
         }
 
@@ -341,7 +340,7 @@ export const useCalculatorStore = create<CalculatorState>()(
         const nextExpression =
           state.justEvaluated || !expression
             ? randomValue
-            : /[+\-×÷^.(]$/.test(expression)
+            : /[+\-×÷^.(ʸ√]$/.test(expression)
               ? expression + randomValue
               : `${expression}×${randomValue}`
 
@@ -350,6 +349,55 @@ export const useCalculatorStore = create<CalculatorState>()(
           result:
             preview(nextExpression, state.angleMode) ??
             state.result,
+          status: 'idle',
+          justEvaluated: false,
+          lastValue: null,
+        })
+        return
+      }
+
+      // Nth-root operator: y√x.
+      if (key === 'ʸ√x') {
+        if (
+          !expression ||
+          /[+\-×÷^.(ʸ√eE]$/.test(expression)
+        ) {
+          return
+        }
+
+        expression += 'ʸ√'
+
+        set({
+          expression,
+          result:
+            preview(expression, state.angleMode) ??
+            state.result,
+          status: 'idle',
+          justEvaluated: false,
+          lastValue: null,
+        })
+        return
+      }
+
+      // Scientific notation: EE inserts the exponent marker.
+      if (key === 'EE') {
+        const currentNumber =
+          expression.split(/[+\-×÷^()%()]/).at(-1) ?? ''
+
+        if (
+          state.justEvaluated ||
+          !/(?:\d+(?:\.\d*)?|\.\d+)$/.test(currentNumber) ||
+          /e/i.test(currentNumber)
+        ) {
+          return
+        }
+
+        expression += 'e'
+
+        set({
+          expression,
+          result:
+            preview(expression, state.angleMode) ?? state.result,
           status: 'idle',
           justEvaluated: false,
           lastValue: null,
@@ -390,7 +438,13 @@ export const useCalculatorStore = create<CalculatorState>()(
       } else if (isOperator) {
         const operator = key === '−' ? '-' : key
 
-        if (!expression) {
+        // A plus or minus immediately after e belongs to the exponent.
+        if (
+          (operator === '-' || operator === '+') &&
+          /e$/i.test(expression)
+        ) {
+          expression += operator
+        } else if (!expression) {
           if (operator !== '-') return
           expression = '-'
         } else if (/[+\-×÷^]$/.test(expression)) {
@@ -400,9 +454,6 @@ export const useCalculatorStore = create<CalculatorState>()(
         }
       } else if (key === '(' || key === ')' || key === '%') {
         expression += key
-      } else if (key === 'EE') {
-        // Scientific exponent input is handled in a later step.
-        return
       } else {
         return
       }

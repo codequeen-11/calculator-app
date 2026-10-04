@@ -2,7 +2,7 @@ import type { AngleMode } from '@/types/calculator'
 import { applyScientificFunction } from './scientific'
 
 type Token = number
-|string | '+' | '-' | '×' | '÷' | '*' | '/' | '^' | '%' | '(' | ')'
+|string | '+' | '-' | '×' | '÷' | '*' | '/' | '^'| 'ʸ√'| '%' | '(' | ')'
 
 export class CalculatorError extends Error {
   constructor(message: string) {
@@ -21,7 +21,10 @@ function tokenize(input: string): Token[] {
     const remaining = source.slice(position)
 
     const numberMatch = remaining.match(
-      /^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i,
+      // /^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i,
+      
+      /^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i,
+      
     )
 
     if (numberMatch) {
@@ -43,7 +46,12 @@ function tokenize(input: string): Token[] {
       position += identifierMatch[0].length
       continue
     }
-
+    
+    if (remaining.startsWith('ʸ√')) {
+  tokens.push('ʸ√')
+  position += 'ʸ√'.length
+  continue
+}
     const character = source[position]
 
     if ('+-×÷*/^%()'.includes(character)) {
@@ -153,18 +161,43 @@ constructor(tokens: Token[], angleMode: AngleMode) {
 
     return this.parsePower()
   }
-
+  
   private parsePower(): number {
-    const base = this.parsePostfix()
+  const base = this.parsePostfix()
 
-    if (this.peek() === '^') {
-      this.consume()
-      const exponent = this.parseUnary()
-      return base ** exponent
+  if (this.peek() === '^') {
+    this.consume()
+    const exponent = this.parseUnary()
+    return base ** exponent
+  }
+
+  if (this.peek() === 'ʸ√') {
+    this.consume()
+
+    // The left side is the root index.
+    // The right side is the number under the root.
+    const radicand = this.parseUnary()
+    const degree = base
+
+    if (degree === 0) {
+      throw new CalculatorError('Root degree cannot be zero')
     }
 
-    return base
+    if (radicand < 0 && Number.isInteger(degree) && degree % 2 === 0) {
+      throw new CalculatorError(
+        'Even roots of negative numbers are not real'
+      )
+    }
+
+    if (radicand < 0 && Number.isInteger(degree) && degree % 2 !== 0) {
+      return -(Math.abs(radicand) ** (1 / degree))
+    }
+
+    return radicand ** (1 / degree)
   }
+
+  return base
+}
 
   private parsePostfix(): number {
     let value = this.parsePrimary()
