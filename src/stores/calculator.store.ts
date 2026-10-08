@@ -10,6 +10,13 @@ import {
 } from '@/lib/calculator/evaluator'
 import { formatResult } from '@/lib/calculator/formatter'
 
+export interface CalculationHistoryItem {
+  id: string
+  expression: string
+  result: string
+  timestamp: number
+}
+
 interface CalculatorState {
   expression: string
   result: string
@@ -20,6 +27,7 @@ interface CalculatorState {
   lastValue: number | null
   secondFunction: boolean
   memory: number | null
+  history: CalculationHistoryItem[]
 
   setExpression: (expression: string) => void
   setResult: (result: string) => void
@@ -27,6 +35,7 @@ interface CalculatorState {
   setAngleMode: (mode: AngleMode) => void
   setStatus: (status: CalculatorStatus) => void
   toggleSecondFunction: () => void
+  clearHistory: () => void
   pressKey: (key: string) => void
   reset: () => void
 }
@@ -41,6 +50,7 @@ const initialState = {
   lastValue: null as number | null,
   secondFunction: false,
   memory: null as number | null,
+  history: [] as CalculationHistoryItem[],
 }
 
 function preview(
@@ -117,12 +127,15 @@ export const useCalculatorStore = create<CalculatorState>()(
         secondFunction: !state.secondFunction,
       })),
 
+    clearHistory: () => set({ history: [] }),
+
     reset: () => {
-      const memory = get().memory
+      const { memory, history } = get()
 
       set({
         ...initialState,
         memory,
+        history,
       })
     },
 
@@ -130,11 +143,12 @@ export const useCalculatorStore = create<CalculatorState>()(
       const state = get()
       let { expression } = state
 
-      // Clear the current calculation while preserving memory.
+      // Clear the current calculation while preserving memory and history.
       if (key === 'AC') {
         set({
           ...initialState,
           memory: state.memory,
+          history: state.history,
         })
         return
       }
@@ -153,7 +167,7 @@ export const useCalculatorStore = create<CalculatorState>()(
         return
       }
 
-      // Evaluate the expression.
+      // Evaluate the expression and record successful calculations.
       if (key === '=') {
         if (!expression.trim()) return
 
@@ -163,12 +177,28 @@ export const useCalculatorStore = create<CalculatorState>()(
             state.angleMode,
           )
 
+          const formattedResult = formatResult(value)
+          const timestamp = Date.now()
+
+          const historyItem: CalculationHistoryItem = {
+            id: `${timestamp}-${Math.random()
+              .toString(36)
+              .slice(2, 9)}`,
+            expression,
+            result: formattedResult,
+            timestamp,
+          }
+
           set({
             expression,
-            result: formatResult(value),
+            result: formattedResult,
             status: 'idle',
             justEvaluated: true,
             lastValue: value,
+            history: [
+              historyItem,
+              ...get().history,
+            ].slice(0, 100),
           })
         } catch (error) {
           set({
@@ -178,7 +208,10 @@ export const useCalculatorStore = create<CalculatorState>()(
           })
 
           if (!(error instanceof CalculatorError)) {
-            console.error('Unexpected calculator error', error)
+            console.error(
+              'Unexpected calculator error',
+              error,
+            )
           }
         }
 
@@ -222,7 +255,9 @@ export const useCalculatorStore = create<CalculatorState>()(
           ) {
             nextExpression = memoryValue
           } else if (
-            /[+\-×÷^.(ʸ√eE]$/.test(currentState.expression)
+            /[+\-×÷^.(ʸ√eE]$/.test(
+              currentState.expression,
+            )
           ) {
             nextExpression =
               currentState.expression + memoryValue
@@ -234,8 +269,10 @@ export const useCalculatorStore = create<CalculatorState>()(
           set({
             expression: nextExpression,
             result:
-              preview(nextExpression, currentState.angleMode) ??
-              currentState.result,
+              preview(
+                nextExpression,
+                currentState.angleMode,
+              ) ?? currentState.result,
             status: 'idle',
             justEvaluated: false,
             lastValue: null,
@@ -397,7 +434,8 @@ export const useCalculatorStore = create<CalculatorState>()(
         set({
           expression,
           result:
-            preview(expression, state.angleMode) ?? state.result,
+            preview(expression, state.angleMode) ??
+            state.result,
           status: 'idle',
           justEvaluated: false,
           lastValue: null,

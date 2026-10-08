@@ -9,10 +9,21 @@ export function CalculatorKeypad({
   scientific,
 }: CalculatorKeypadProps) {
   return (
-    <>
-      {scientific && <ScientificKeypad />}
-
-      <BasicKeypad />
-    </>
+    <div
+      className="
+        mx-auto
+        w-full
+        
+        
+        px-1
+        sm:px-2
+      "
+    >
+      {scientific ? (
+        <ScientificKeypad />
+      ) : (
+        <BasicKeypad />
+      )}
+    </div>
   )
 }

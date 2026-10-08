@@ -12,9 +12,17 @@
 
   color-scheme: light;
 
+  /* =====================================================
+     APP
+     ===================================================== */
+
   --color-app-background: #f5f5f7;
   --color-calculator-background: #ffffff;
   --color-display: #111111;
+
+  /* =====================================================
+     KEYS
+     ===================================================== */
 
   --color-number-key: #e5e5ea;
   --color-number-key-hover: #d8d8dd;
@@ -31,16 +39,83 @@
   --color-key-text: #111111;
   --color-operator-text: #ffffff;
 
+  /* =====================================================
+     SECONDARY
+     ===================================================== */
+
   --color-muted-text: #8e8e93;
   --color-border: rgba(0, 0, 0, 0.08);
 
+  /* =====================================================
+     CALCULATOR LAYOUT
+     ===================================================== */
+
   --calculator-max-width: 430px;
+
+  /* =====================================================
+     SPACING
+     ===================================================== */
+
+  --calculator-side-padding: 16px;
+  --calculator-key-gap: 8px;
+  --calculator-section-gap: 8px;
+
+  /* =====================================================
+     KEYS
+     ===================================================== */
+
+  --calculator-key-height: 56px;
+  --calculator-key-radius: 999px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (min-width: 768px) {
+  :root {
+    --calculator-max-width: 720px;
+
+    --calculator-side-padding: 20px;
+    --calculator-key-gap: 9px;
+
+    --calculator-key-height: 58px;
+  }
+}
+
+/* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media (min-width: 1024px) {
+  :root {
+    --calculator-max-width: 900px;
+
+    --calculator-side-padding: 24px;
+    --calculator-key-gap: 10px;
+
+    --calculator-key-height: 60px;
+  }
+}
+
+/* =========================================================
+   LARGE DESKTOP
+   ========================================================= */
+
+@media (min-width: 1440px) {
+  :root {
+    --calculator-max-width: 920px;
+  }
+}
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -54,9 +129,9 @@
     --color-number-key-hover: #2c2c2e;
     --color-number-key-active: #3a3a3c;
 
-    --color-function-key: #505052;
-    --color-function-key-hover: #636366;
-    --color-function-key-active: #707072;
+    --color-function-key: #3a3a3c;
+    --color-function-key-hover: #48484a;
+    --color-function-key-active: #636366;
 
     --color-operator-key: #ff9f0a;
     --color-operator-key-hover: #ffb340;
@@ -69,6 +144,10 @@
     --color-border: rgba(255, 255, 255, 0.08);
   }
 }
+
+/* =========================================================
+   BASE
+   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -84,7 +163,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+
   background: var(--color-app-background);
+
+  font-family: inherit;
 }
 
 button,
@@ -99,4 +181,32 @@ button {
 button:focus-visible {
   outline: 2px solid var(--color-operator-key);
   outline-offset: 3px;
+}
+
+/* =========================================================
+   HISTORY ANIMATIONS
+   ========================================================= */
+
+@keyframes history-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes history-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

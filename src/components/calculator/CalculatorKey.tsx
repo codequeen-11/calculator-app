@@ -49,21 +49,42 @@ export function CalculatorKey({
       onClick={onClick}
       aria-label={ariaLabel}
       className={[
-        'flex aspect-square w-full items-center justify-center',
+        // Size
+        'flex h-11 w-full min-w-0',
+        'items-center justify-center',
+        'sm:h-16',
+        'lg:h-[58px]',
+
+        // Shape
         'rounded-full',
-        'text-[clamp(1.35rem,5vw,2rem)]',
-        'font-normal',
+
+        // Typography
+        'text-[clamp(0.95rem,3.8vw,1.35rem)]',
+        'font-normal leading-none',
+
+        // Interaction
         'select-none',
+        'touch-manipulation',
         'transition-[transform,background-color]',
         'duration-100',
-        'hover:scale-[1.02]',
-        'active:scale-[0.94]',
-        'touch-manipulation',
+        'hover:scale-[1.015]',
+        'active:scale-[0.96]',
+
+        // Accessibility
+        'focus-visible:outline-none',
+        'focus-visible:ring-2',
+        'focus-visible:ring-[var(--color-operator-key)]',
+        'focus-visible:ring-offset-2',
+
+        // Variant
         variantStyles[variant],
+
         wide ? 'col-span-2' : '',
       ].join(' ')}
     >
-      {children}
+      <span className="max-w-full truncate px-1">
+        {children}
+      </span>
     </button>
   )
 }
