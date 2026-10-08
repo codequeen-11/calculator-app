@@ -17,14 +17,14 @@ export function CalculatorDisplay({
         items-end
         justify-end
         overflow-hidden
-        px-1
-        pb-4
+        px-2
+        pb-5
         pt-4
 
-        sm:min-h-[160px]
+        sm:min-h-[165px]
         sm:pb-5
-
-        lg:min-h-[135px]
+        // sm:pt-5
+        lg:min-h-[160px]
         lg:pb-3
         lg:pt-2
       "
@@ -32,7 +32,7 @@ export function CalculatorDisplay({
       {/* Expression */}
       <div
         className="
-          mb-1.5
+          mb-2
           min-h-6
           max-w-full
           overflow-x-auto
@@ -62,7 +62,7 @@ export function CalculatorDisplay({
         <span
           className="
             whitespace-nowrap
-            text-[clamp(3rem,12vw,4.5rem)]
+            text-[clamp(3.25rem,10vw,4.5rem)]
             font-light
             leading-none
             tracking-[-0.04em]

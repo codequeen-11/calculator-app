@@ -50,23 +50,23 @@ export function CalculatorKey({
       aria-label={ariaLabel}
       className={[
         // Size
-        'flex h-11 w-full min-w-0',
+        'flex h-12 w-full min-w-0',
         'items-center justify-center',
         'sm:h-16',
-        'lg:h-[58px]',
+        'lg:h-16.5',
 
         // Shape
         'rounded-full',
 
         // Typography
-        'text-[clamp(0.95rem,3.8vw,1.35rem)]',
+        'text-[clamp(1.05rem,2.8vw,1.35rem)]',
         'font-normal leading-none',
 
         // Interaction
         'select-none',
         'touch-manipulation',
         'transition-[transform,background-color]',
-        'duration-100',
+        'duration-150',
         'hover:scale-[1.015]',
         'active:scale-[0.96]',
 

@@ -32,21 +32,31 @@ export function Calculator() {
   return (
     <main
       className="
-        relative mx-auto flex min-h-screen w-full
-        items-start justify-center
-        px-4 py-4
-        sm:px-6 sm:py-5
+        relative mx-auto flex min-h-dvh w-full
+        items-center justify-center
+        px-4 py-5
+        sm:px-6 sm:py-6
         lg:px-8 lg:py-6
       "
     >
       {/* Calculator */}
       <section
-        className="
-          w-full
-          max-w-[var(--calculator-max-width)]
-          transition-transform duration-300
-        "
-      >
+      //   className="
+      //     w-full
+      //     max-w-[var(--calculator-max-width)]
+      //     transition-transform duration-300
+      //   "
+      // >
+          className={`
+      w-full
+      transition-[max-width] duration-300 ease-out
+      ${
+        mode === 'basic'
+          ? 'max-w-[430px] sm:max-w-[480px] lg:max-w-[500px]'
+          : 'max-w-[900px] xl:max-w-[920px]'
+      }
+    `}
+  >
         <CalculatorHeader
           onHistoryClick={() =>
             setShowHistory((visible) => !visible)
