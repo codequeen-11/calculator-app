@@ -1,5 +1,4 @@
 import { useState } from 'react'
-
 import { useCalculatorStore } from '@/stores/calculator.store'
 import { useKeyboard } from '@/hooks/useKeyboard'
 
@@ -32,7 +31,7 @@ export function Calculator() {
   return (
     <main
       className="
-        relative mx-auto flex min-h-dvh w-full
+        relative mx-auto flex min-h-screen w-full
         items-center justify-center
         px-4 py-5
         sm:px-6 sm:py-6

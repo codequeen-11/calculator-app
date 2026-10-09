@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import type {
   AngleMode,
   CalculatorMode,
@@ -112,7 +113,7 @@ const scientificFunctions: Record<string, string> = {
   'x!': 'factorial',
 }
 
-export const useCalculatorStore = create<CalculatorState>()(
+export const useCalculatorStore = create<CalculatorState>()(persist(
   (set, get) => ({
     ...initialState,
 
@@ -505,4 +506,14 @@ export const useCalculatorStore = create<CalculatorState>()(
       })
     },
   }),
+    {
+      name: 'calculator-history-v1',
+      storage: createJSONStorage(() => localStorage),
+
+      // Save only calculation history, not the current calculator state.
+      partialize: (state) => ({
+        history: state.history,
+      }),
+    },
+  ),
 )
