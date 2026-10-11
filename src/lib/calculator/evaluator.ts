@@ -122,31 +122,60 @@ constructor(tokens: Token[], angleMode: AngleMode) {
 
     return value
   }
-
+ 
   private parseTerm(): number {
     let value = this.parseUnary()
 
-    while (
-      this.peek() === '×' ||
-      this.peek() === '÷' ||
-      this.peek() === '*' ||
-      this.peek() === '/'
-    ) {
-      const operator = this.consume()
+    while (true) {
+      const next = this.peek()
+
+      const isExplicitOperator =
+        next === '×' ||
+        next === '÷' ||
+        next === '*' ||
+        next === '/'
+
+      // Support implicit multiplication, for example:
+      // 2(3+4), cos(30)(25), and 2pi.
+      const isImplicitMultiplication =
+        typeof next === 'number' ||
+        next === '(' ||
+        (typeof next === 'string' &&
+          /^[a-zA-Z]+$/.test(next) &&
+          next !== 'e')
+
+      if (!isExplicitOperator && !isImplicitMultiplication) {
+        break
+      }
+
+      let operator: Token | undefined
+
+      if (isExplicitOperator) {
+        operator = this.consume()
+      }
+
       const right = this.parseUnary()
 
-      if ((operator === '÷' || operator === '/') && right === 0) {
+      if (
+        (operator === '÷' || operator === '/') &&
+        right === 0
+      ) {
         throw new CalculatorError('Cannot divide by zero')
       }
 
-      value =
-        operator === '×' || operator === '*'
-          ? value * right
-          : value / right
+      if (operator === '×' || operator === '*') {
+        value *= right
+      } else if (operator === '÷' || operator === '/') {
+        value /= right
+      } else {
+        // No explicit operator means multiplication.
+        value *= right
+      }
     }
 
     return value
   }
+
 
   private parseUnary(): number {
     if (this.peek() === '+') {

@@ -320,8 +320,8 @@ export const useCalculatorStore = create<CalculatorState>()(persist(
         })
         return
       }
-
-      // Scientific functions wrap the current expression.
+      
+      // Scientific functions: support both function-first and number-first input.
       const scientificFunction = scientificFunctions[key]
 
       if (scientificFunction) {
@@ -330,24 +330,51 @@ export const useCalculatorStore = create<CalculatorState>()(persist(
             ? String(state.lastValue)
             : expression
 
-        if (!source || /[+\-×÷^.(ʸ√eE]$/.test(source)) {
+        // If the user has not entered a value yet, start an open function.
+        // Example: cos -> cos(
+        if (!source.trim()) {
+          const nextExpression = `${scientificFunction}(`
+
+          set({
+            expression: nextExpression,
+            result: '0',
+            status: 'idle',
+            justEvaluated: false,
+            lastValue: null,
+          })
           return
         }
 
-        const nextExpression =
-          `${scientificFunction}(${source})`
+        // If the expression ends with an operator or an open parenthesis,
+        // apply the function to the next value instead of wrapping the
+        // incomplete expression.
+        if (/[+\-×÷^.(ʸ√eE]$/.test(source)) {
+          const nextExpression = `${source}${scientificFunction}(`
+
+          set({
+            expression: nextExpression,
+            result: preview(nextExpression, state.angleMode) ?? state.result,
+            status: 'idle',
+            justEvaluated: false,
+            lastValue: null,
+          })
+          return
+        }
+
+        // If a value already exists, wrap it.
+        // Example: 30 -> cos(30)
+        const nextExpression = `${scientificFunction}(${source})`
 
         set({
           expression: nextExpression,
-          result:
-            preview(nextExpression, state.angleMode) ??
-            state.result,
+          result: preview(nextExpression, state.angleMode) ?? state.result,
           status: 'idle',
           justEvaluated: false,
           lastValue: null,
         })
         return
       }
+
 
       // Change the sign of the current value/expression.
       if (key === '+/−') {

@@ -32,9 +32,10 @@ export function BasicKeypad() {
 
       <CalculatorKey
         variant="function"
-        onClick={() => pressKey('+/−')}
+        onClick={() => pressKey('⌫')}
       >
-        +/−
+        
+        ⌫
       </CalculatorKey>
 
       <CalculatorKey

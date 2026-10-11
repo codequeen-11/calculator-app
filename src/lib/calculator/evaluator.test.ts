@@ -16,6 +16,9 @@ describe('evaluateExpression', () => {
     ['50%', 0.5],
     ['0.1+0.2', 0.3],
     ['2e3+1', 2001],
+    ['2(3+4)', 14],
+    ['(2+3)(4+1)', 25],
+    ['cos(30)(25)', 21.6506350946],
   ])('evaluates %s', (expression, expected) => {
     expect(evaluateExpression(expression)).toBeCloseTo(expected)
   })
