@@ -34,7 +34,28 @@ A modern, responsive scientific calculator built with **React, TypeScript, Tailw
 - **Responsive interface:** Adapts to mobile, tablet, and desktop screens.
 - **Theme support:** Light and dark appearances.
 - **Keyboard support:** Use supported keyboard shortcuts where implemented.
+sreenshots 
 
+### Basic Calculator
+
+<p align="center">
+  <img src="public/screenshots/basic-calculator.png" alt="Basic Calculator" width="350" />
+</p>
+
+### Scientific Calculator
+
+<p align="center">
+  <img src="public/screenshots/scientific-calculator.png" alt="Scientific Calculator" width="650" />
+</p>
+
+<p align="center">
+  <img src="public/screenshots/scientific-calculator-desktop.png" alt="Scientific Calculator" width="650" />
+</p>
+### Calculation History
+
+<p align="center">
+  <img src="public/screenshots/calculator-history.png" alt="Calculation History" width="500" />
+</p>
 ## 🛠️ Tech Stack
 
 | Technology | Purpose |
